@@ -48,12 +48,25 @@ Tipp 1: Die erste Zeile im erzeugten Bild stellt das Eingabearray dar.
 */
 void warmup(Visualizer *v, uint8_t *arr, size_t len)
 {
+    uint8_t *temp;
     for (size_t i = 1; i < 13; i++)
     {
         visualizer_append_array(v, arr);
-        arr = manipulator(arr, len);
+
+        temp = manipulator(arr, len); // Manipulate the array and store in temp
+        if (temp != NULL)
+        {
+            if (i != 1)
+            {
+                free(arr); // Free the previous arr, except for the first iteration
+            }
+            arr = temp; // Update arr to point to the newly allocated array
+        }
+
         printArray(arr, len);
     }
+
+    free(arr); // Free the last allocated array
 }
 /*
 Aufgabe 2:
