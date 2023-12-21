@@ -32,7 +32,7 @@ uint8_t *manipulator(uint8_t *arr, size_t len)
         // Handle memory allocation failure
     }
     newArr[len - 1] = arr[0];
-    for (size_t i = 0; i <= (len - 1); i++)
+    for (size_t i = 0; i < (len - 1); i++)
     {
         newArr[i] = arr[i + 1];
     }
