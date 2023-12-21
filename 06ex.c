@@ -68,6 +68,50 @@ void warmup(Visualizer *v, uint8_t *arr, size_t len)
 
     free(arr); // Free the last allocated array
 }
+
+void merge(Visualizer *v, uint8_t *arr, size_t l, size_t m, size_t r) {
+    size_t n1 = m - l + 1;
+    size_t n2 = r - m;
+
+    uint8_t *L = (uint8_t *)malloc(n1 * sizeof(uint8_t));
+    uint8_t *R = (uint8_t *)malloc(n2 * sizeof(uint8_t));
+
+    for (size_t i = 0; i < n1; i++)
+        L[i] = arr[l + i];
+    for (size_t j = 0; j < n2; j++)
+        R[j] = arr[m + 1 + j];
+
+    size_t i = 0, j = 0, k = l;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            arr[k++] = L[i++];
+        } else {
+            arr[k++] = R[j++];
+        }
+    }
+
+    while (i < n1) {
+        arr[k++] = L[i++];
+    }
+    while (j < n2) {
+        arr[k++] = R[j++];
+    }
+
+    free(L);
+    free(R);
+
+    visualizer_append_array(v, arr); // Update visualizer after each merge
+}
+
+void mergeSort(Visualizer *v, uint8_t *arr, size_t l, size_t r) {
+    if (l < r) {
+        size_t m = l + (r - l) / 2;
+        mergeSort(v, arr, l, m);
+        mergeSort(v, arr, m + 1, r);
+        merge(v, arr, l, m, r);
+    }
+}
+
 /*
 Aufgabe 2:
 Bringen Sie die Tests zum durchlaufen.
@@ -78,4 +122,20 @@ Tipp 3: `len` ist immer eine Dreierpotenz, damit Sie sich nicht mit Rundungsdeta
 */
 void sort_it(Visualizer *v, uint8_t *arr, size_t len)
 {
+         {
+    if (len > 1) {
+        mergeSort(v, arr, 0, len - 1);
+    }
 }
+}
+
+
+
+
+
+// /*
+// sorts elements in groups equal to power of 3
+// */
+// uint8_t *trioSorter(uint8_t *arr, size_t len){
+
+// }
