@@ -17,7 +17,7 @@ cc -std=c11 -g -Wall -Werror 06ex_test.c -o 06ex_test.o -lm && valgrind --leak-c
 void printArray(uint8_t *arr, size_t len)
 {
     const char *s2 = format_uint8_array(arr, len);
-    printf("%s",s2);
+    printf("%s", s2);
     free((char *)s2);
 }
 uint8_t *manipulator(uint8_t *arr, size_t len)
@@ -48,11 +48,12 @@ Tipp 1: Die erste Zeile im erzeugten Bild stellt das Eingabearray dar.
 */
 void warmup(Visualizer *v, uint8_t *arr, size_t len)
 {
-    visualizer_append_array(v, arr);
-    arr = manipulator(arr, len);
-    printArray(arr,len);
-    visualizer_append_array(v, arr);
-    manipulator(arr, len);
+    for (size_t i = 1; i < 13; i++)
+    {
+        visualizer_append_array(v, arr);
+        arr = manipulator(arr, len);
+        printArray(arr, len);
+    }
 }
 /*
 Aufgabe 2:
