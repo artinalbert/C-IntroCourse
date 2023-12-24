@@ -69,49 +69,129 @@ void warmup(Visualizer *v, uint8_t *arr, size_t len)
     free(arr); // Free the last allocated array
 }
 
-void merge(Visualizer *v, uint8_t *arr, size_t l, size_t m, size_t r) {
-    size_t n1 = m - l + 1;
-    size_t n2 = r - m;
+int getExponentBase3(int number)
+{
+    int exponent = 0;
+    while (number % 3 == 0)
+    {
+        number /= 3;
+        exponent++;
+    }
+    return exponent;
+}
 
-    uint8_t *L = (uint8_t *)malloc(n1 * sizeof(uint8_t));
-    uint8_t *R = (uint8_t *)malloc(n2 * sizeof(uint8_t));
+uint8_t *mergeSortIntoNewArray(int arrayLength, uint8_t *arrA, uint8_t *arrB, uint8_t *arrC)
+{
+    // Allocate memory for the new array
+    uint8_t *result = calloc(arrayLength * 3 ,sizeof(uint8_t));
+    if (result == NULL)
+    {
+        // Handle memory allocation failure if needed
+        return NULL;
+    }
 
-    for (size_t i = 0; i < n1; i++)
-        L[i] = arr[l + i];
-    for (size_t j = 0; j < n2; j++)
-        R[j] = arr[m + 1 + j];
+    int i = 0, j = 0, k = 0, l = 0;
 
-    size_t i = 0, j = 0, k = l;
-    while (i < n1 && j < n2) {
-        if (L[i] <= R[j]) {
-            arr[k++] = L[i++];
-        } else {
-            arr[k++] = R[j++];
+    // Merge arrays into result
+    while (i < arrayLength || j < arrayLength || k < arrayLength)
+    {
+        // Assume the next element is the maximum possible value for uint8_t - 255
+        uint8_t nextVal = 0xFF;
+
+        // Find the next smallest element from the arrays
+        if (i < arrayLength && arrA[i] < nextVal)
+        {
+            nextVal = arrA[i];
         }
+        if (j < arrayLength && arrB[j] < nextVal)
+        {
+            nextVal = arrB[j];
+        }
+        // if(arrC[k] == 0){
+        //     printf("%d",k);
+        //     exit(-1);
+        // }
+        if (k < arrayLength && arrC[k] < nextVal)
+        {
+            nextVal = arrC[k];
+        }
+
+        // Add the smallest element to the result array
+        result[l++] = nextVal;
+
+        // Increment the pointer for the array from which the element was taken
+        //to not increment two counters - we use else if instead of ifs -- to not lose values(some values will not be compared! - as only
+        //one value was copied to nextVal)
+        if (i < arrayLength && arrA[i] == nextVal)
+            i++;
+        else if (j < arrayLength && arrB[j] == nextVal)
+            j++;
+        else if (k < arrayLength && arrC[k] == nextVal)
+            k++;
     }
 
-    while (i < n1) {
-        arr[k++] = L[i++];
-    }
-    while (j < n2) {
-        arr[k++] = R[j++];
-    }
-
-    free(L);
-    free(R);
-
-    visualizer_append_array(v, arr); // Update visualizer after each merge
+    return result;
 }
 
-void mergeSort(Visualizer *v, uint8_t *arr, size_t l, size_t r) {
-    if (l < r) {
-        size_t m = l + (r - l) / 2;
-        mergeSort(v, arr, l, m);
-        mergeSort(v, arr, m + 1, r);
-        merge(v, arr, l, m, r);
-    }
+size_t min(size_t a, size_t b)
+{
+    return (a < b) ? a : b;
+}
+/*
+sorts partial arrays of size subArrayLength within arr by iteratively calling merge sort into new arrays
+*/
+void partialSorter(Visualizer *v, uint8_t *arr, size_t arr_len, uint8_t subArrayLength)
+{
+    // Temporary array for merging
+    // uint8_t *temp = malloc(arr_len * sizeof(uint8_t));
+    // if (temp == NULL)
+    // {
+    //     // Handle memory allocation failure if needed
+    //     return;
+    // }
+
+    // Start merging from the given subArrayLength
+
+        for (size_t i = 0; i < arr_len; i += subArrayLength * 3)
+        {
+            // Calculate the lengths of the subarrays
+            size_t length1 = min(subArrayLength, arr_len - i);
+            size_t length2 = min(subArrayLength, arr_len - i - length1);
+            size_t length3 = min(subArrayLength, arr_len - i - length1 - length2);
+
+            if(length1!=length2|| length2!=length3){
+                printf("%ld,%ld,%ld",length1,length2,length3);
+                exit(-1);
+            }
+            printf("%ld",i);
+            // Merge the subarrays
+            uint8_t *merged = mergeSortIntoNewArray(subArrayLength, arr + i, arr + i + length1, arr + i + length1 + length2);
+
+            // Copy the merged array back and free the allocated memory
+            //memcpy(temp + i, merged, length1 + length2 + length3);
+            memcpy(arr + i, merged, length1 + length2 + length3);
+            free(merged);
+            visualizer_append_array(v, arr);
+        }
+        //memcpy(arr, temp, arr_len);
+
+
+    //free(temp);
 }
 
+
+
+void iterateOverStages(Visualizer *v, uint8_t *arr, size_t len) {
+    int exponent = getExponentBase3(len);
+    uint8_t subArrayLength = 1; // Start with the smallest unit
+
+    for (int i = 0; i < exponent; i++) {
+        partialSorter(v, arr, len, subArrayLength);
+
+        // Increase the subArrayLength for the next stage
+        subArrayLength *= 3;
+    }
+}
 /*
 Aufgabe 2:
 Bringen Sie die Tests zum durchlaufen.
@@ -122,16 +202,10 @@ Tipp 3: `len` ist immer eine Dreierpotenz, damit Sie sich nicht mit Rundungsdeta
 */
 void sort_it(Visualizer *v, uint8_t *arr, size_t len)
 {
-         {
-    if (len > 1) {
-        mergeSort(v, arr, 0, len - 1);
-    }
+    // Initial sort of atomic triplets
+    visualizer_append_array(v, arr); // Visualize after sorting triplets
+    iterateOverStages(v,arr,len);
 }
-}
-
-
-
-
 
 // /*
 // sorts elements in groups equal to power of 3
