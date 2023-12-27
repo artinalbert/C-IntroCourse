@@ -96,16 +96,19 @@ zu erfragen, rufen Sie `sphinx_ask(s, i)` auf. Aber Achtung: Wenn Sie diese Funk
 bool descending_sphinx(Sphinx *s, size_t n)
 {
     size_t upperBound = n;
-    size_t lowerBound = 0;
+    size_t lowerBound = -1;
 
     if (n == 0)
     {
         return false;
     }
-    if (n == 1 && sphinx_ask(s, 0) == 12345)
+    if (n == 1)
     {
+        if(sphinx_ask(s, 0) == 12345)
         return true;
+        else return false;
     }
+
     while (upperBound - 1 != lowerBound)
     {
         size_t middleIdx = lowerBound + (upperBound - lowerBound) / 2;
