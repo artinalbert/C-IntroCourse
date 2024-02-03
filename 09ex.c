@@ -50,6 +50,27 @@ bool is_max_heap(Array arr)
     }
     return true;
 }
+void insert_into_array(TreeNode *node, uint16_t *array, size_t position)
+{
+    if (node == NULL)
+    {
+        return; // Basisfall: Wenn der Knoten null ist, tue nichts.
+    }
+
+    // Füge den Wert des aktuellen Knotens an der berechneten Position ins Array ein.
+    array[position] = node->item;
+
+    // Rekursive Aufrufe für das linke und das rechte Kind, wenn sie existieren.
+    // Berechne die Positionen für die Kinder und rufe die Funktion rekursiv auf.
+    if (node->left != NULL)
+    {
+        insert_into_array(node->left, array, 2 * position + 1);
+    }
+    if (node->right != NULL)
+    {
+        insert_into_array(node->right, array, 2 * position + 2);
+    }
+}
 /*
 Aufgabe 2:
 
@@ -61,6 +82,28 @@ Tipp 3: Die Position eines Knotens im Array lässt sich relativ leicht bestimmen
 Tipp 4: Ja, das sind also sinnvolle Argumente für die Hilfsfunktion.
 Tipp 5: Regelmäßig zähneputzen und genug bewegen.
 */
-void tree_to_array(TreeNode *t, Array arr) {
+void tree_to_array(TreeNode *t, Array arr)
+{
+    // bfs - level order traversal
+    // queue
+    //  TreeNode *queue[arr.len];
+    //  int front = 0;
+    //  int rear = 0;
+    //  queue[rear++] = t;
+    //  while (front < rear) {
+    //      TreeNode *node = queue[front++];
+    //      if (node != NULL) {
+    //          arr.arr[arr.len++] = node->item;
+    //          queue[rear++] = node->left;
+    //          queue[rear++] = node->right;
+    //      }
+    //  }
 
+    if (t == NULL || arr.arr == NULL)
+    {
+        return; // Sicherstellen, dass weder der Baum noch das Array null sind.
+    }
+
+    // Starte den rekursiven Prozess mit der Wurzel des Baums und der Position 0 im Array.
+    insert_into_array(t, arr.arr, 0);
 }
