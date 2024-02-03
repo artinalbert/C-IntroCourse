@@ -24,10 +24,32 @@ Aufgabe 1:
 Gegeben ein Array `arr`, geben Sie zurück, ob der zugehörige linksvollständige Binärbaum
 die max-heap Eigenschaft erfüllt.
 */
-bool is_max_heap(Array arr) {
-    return false;
-}
+bool is_max_heap(Array arr)
+{
 
+    // Behandle den Fall eines leeren Arrays als gültigen Max-Heap
+    if (arr.len < 2)
+    {
+        // returning early > no need for else
+        return true;
+        // arr.len is unsigned short! >> can not be negative - underflow
+    }
+    for (size_t i = 0; i <= (arr.len - 2) / 2; i++)
+    {
+        // Überprüfe, ob das aktuelle Element kleiner als sein linkes Kind ist
+        if (arr.arr[i] < arr.arr[2 * i + 1])
+        {
+            return false;
+        }
+        // Überprüfe, ob das aktuelle Element kleiner als sein rechtes Kind ist,
+        // falls das rechte Kind existiert
+        if (2 * i + 2 < arr.len && arr.arr[i] < arr.arr[2 * i + 2])
+        {
+            return false;
+        }
+    }
+    return true;
+}
 /*
 Aufgabe 2:
 
